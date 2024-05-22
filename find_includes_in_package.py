@@ -63,11 +63,9 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
 
         # TODO(clalancette): Also skip when inside of strings?
 
-        # TODO(clalancette): Also deal with 'using'
-
         # Skip all lines that don't have '::' in them.  Because of namespaces,
         # this means we might miss some dependencies, but it shouldn't matter too much.
-        if not '::' in line:
+        if not '::' in stripped_line:
             continue
 
         commas = stripped_line.replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
