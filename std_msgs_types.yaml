@@ -1,0 +1,9 @@
+%YAML 1.1
+---
+use_angle_brackets: true
+empty_token: "std_msgs::msg::"
+namespace_depth: 3
+symbols:
+  - symbol_name: "std_msgs::msg::Empty"
+    include: "std_msgs/msg/empty.hpp"
+    package: "std_msgs"
