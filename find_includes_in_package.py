@@ -8,23 +8,24 @@ import yaml
 
 
 class Symbols:
-    __slots__ = ('symbol_map', 'empty_token')
+    __slots__ = ('symbol_map', 'empty_token', 'namespace_depth')
 
-    def __init__(self, symbol_map, empty_token):
+    def __init__(self, symbol_map: dict, empty_token: str, namespace_depth: int):
         self.symbol_map = symbol_map
         self.empty_token = empty_token
+        self.namespace_depth = namespace_depth
 
 
 def find_type(single_token: str, symbol_map: Symbols) -> set:
-    # In case this is a lone 'std::', the actual type is on the next
-    # line.  But since this entire utility is line-oriented, there is
-    # no good way to get that.  Just ignore these; we may drop an include
-    # on the floor, but it is really not a big deal.
+    # In case this is just the empty namespace token, the actual type is
+    # probably on thenext line.  Since this entire utility is line-oriented,
+    # there is no good way to get that.  Just ignore these; we may drop an
+    # include here or there, but it is really not a big deal.
     if single_token != symbol_map.empty_token:
         if single_token.startswith(symbol_map.empty_token):
-            # We only want to look at the std:: and the first part
             double_colon_split = single_token.split('::')
-            first = '::'.join(double_colon_split[:2])
+            # Only look up to the depth specified
+            first = '::'.join(double_colon_split[:symbol_map.namespace_depth])
             if first not in symbol_map.symbol_map:
                 print(first)
             else:
@@ -83,7 +84,7 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
                     include_set = include_set.union(find_type(s, symbol_map))
                     break
 
-    print(include_set)
+    #print(include_set)
 
 
 def main():
@@ -101,7 +102,7 @@ def main():
             if data['symbols'] is not None:
                 for symbol in data['symbols']:
                     symbol_map[symbol['symbol_name']] = symbol['include']
-            symbol_maps.append(Symbols(symbol_map, data['empty_token']))
+            symbol_maps.append(Symbols(symbol_map, data['empty_token'], data['namespace_depth']))
 
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
         for f in filenames:

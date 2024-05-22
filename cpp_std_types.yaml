@@ -2,6 +2,7 @@
 ---
 use_angle_brackets: true
 empty_token: "std::"
+namespace_depth: 2
 symbols:
   - symbol_name: "std::abs"
     include: "cmath"

@@ -2,6 +2,7 @@
 ---
 use_angle_brackets: false
 empty_token: "rclcpp_lifecycle::"
+namespace_depth: 2
 symbols:
   - symbol_name: "rclcpp_lifecycle::LifecycleNode"
     include: "rclcpp_lifecycle/lifecycle_node.hpp"

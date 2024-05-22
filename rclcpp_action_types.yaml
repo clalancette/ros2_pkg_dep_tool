@@ -2,6 +2,7 @@
 ---
 use_angle_brackets: false
 empty_token: "rclcpp_action::"
+namespace_depth: 2
 symbols:
   - symbol_name: "rclcpp_action::create_client"
     include: "rclcpp_action/create_client.hpp"
