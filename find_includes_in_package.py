@@ -98,8 +98,9 @@ def main():
         with open(t, 'r') as infp:
             data = yaml.safe_load(infp)
             symbol_map = {}
-            for symbol in data['symbols']:
-                symbol_map[symbol['symbol_name']] = symbol['include']
+            if data['symbols'] is not None:
+                for symbol in data['symbols']:
+                    symbol_map[symbol['symbol_name']] = symbol['include']
             symbol_maps.append(Symbols(symbol_map, data['empty_token']))
 
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
