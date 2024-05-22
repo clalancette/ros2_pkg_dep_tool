@@ -6,4 +6,5 @@ namespace_depth: 3
 symbols:
   - symbol_name: "std_msgs::msg::Empty"
     include: "std_msgs/msg/empty.hpp"
-    package: "std_msgs"
+    package_name: "std_msgs"
+    target_name: "${std_msgs_TARGETS}"

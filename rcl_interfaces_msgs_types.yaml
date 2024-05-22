@@ -6,4 +6,5 @@ namespace_depth: 3
 symbols:
   - symbol_name: "rcl_interfaces::msg::SetParametersResult"
     include: "rcl_interfaces/msg/set_parameters_result.hpp"
-    package: "rcl_interfaces"
+    package_name: "rcl_interfaces"
+    target_name: "${rcl_interfaces_TARGETS}"

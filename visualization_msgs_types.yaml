@@ -6,7 +6,9 @@ namespace_depth: 3
 symbols:
   - symbol_name: "visualization_msgs::msg::Marker"
     include: "visualization_msgs/msg/marker.hpp"
-    package: "visualization_msgs"
+    package_name: "visualization_msgs"
+    target_name: "${visualization_msgs_TARGETS}"
   - symbol_name: "visualization_msgs::msg::MarkerArray"
     include: "visualization_msgs/msg/marker_array.hpp"
-    package: "visualization_msgs"
+    package_name: "visualization_msgs"
+    target_name: "${visualization_msgs_TARGETS}"

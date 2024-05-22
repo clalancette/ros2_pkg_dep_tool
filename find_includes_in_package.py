@@ -18,7 +18,7 @@ class Symbols:
 
 def find_type(single_token: str, symbol_map: Symbols) -> set:
     # In case this is just the empty namespace token, the actual type is
-    # probably on thenext line.  Since this entire utility is line-oriented,
+    # probably on the next line.  Since this entire utility is line-oriented,
     # there is no good way to get that.  Just ignore these; we may drop an
     # include here or there, but it is really not a big deal.
     if single_token != symbol_map.empty_token:
@@ -26,9 +26,7 @@ def find_type(single_token: str, symbol_map: Symbols) -> set:
             double_colon_split = single_token.split('::')
             # Only look up to the depth specified
             first = '::'.join(double_colon_split[:symbol_map.namespace_depth])
-            if first not in symbol_map.symbol_map:
-                print(first)
-            else:
+            if first in symbol_map.symbol_map:
                 if symbol_map.symbol_map[first]:
                     return set([symbol_map.symbol_map[first]])
 
@@ -71,7 +69,7 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
         if not '::' in line:
             continue
 
-        commas = line.strip().replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',')
+        commas = line.strip().replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
 
         split = commas.split(',')
         for s in split:
@@ -83,6 +81,8 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
                 if found_type:
                     include_set = include_set.union(find_type(s, symbol_map))
                     break
+            else:
+                print(f'==> Missing symbol for {s}')
 
     #print(include_set)
 

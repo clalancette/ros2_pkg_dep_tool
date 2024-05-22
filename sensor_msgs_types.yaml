@@ -6,4 +6,5 @@ namespace_depth: 3
 symbols:
   - symbol_name: "sensor_msgs::msg::Image"
     include: "sensor_msgs/msg/image.hpp"
-    package: "sensor_msgs"
+    package_name: "sensor_msgs"
+    target_name: "${sensor_msgs_TARGETS}"
