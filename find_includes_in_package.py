@@ -44,14 +44,16 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
 
     in_c_comment = False
     for line in lines:
+        stripped_line = line.strip()
+
         # Skip C++ style comments
-        if line.lstrip().startswith('//'):
+        if stripped_line.startswith('//'):
             continue
 
         # Skip C-style comments
         if not in_c_comment:
-            if line.lstrip().startswith('/*'):
-                if not '*/' in line.lstrip():
+            if stripped_line.startswith('/*'):
+                if not '*/' in stripped_line:
                     in_c_comment = True
                 continue
         else:
@@ -68,7 +70,7 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
         if not '::' in line:
             continue
 
-        commas = line.strip().replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
+        commas = stripped_line.replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
 
         split = commas.split(',')
         for s in split:
