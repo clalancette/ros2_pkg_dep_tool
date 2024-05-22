@@ -1,6 +1,7 @@
 %YAML 1.1
 ---
 use_angle_brackets: true
+empty_token: "std::"
 symbols:
   - symbol_name: "std::abs"
     include: "cmath"
