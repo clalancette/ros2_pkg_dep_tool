@@ -33,7 +33,7 @@ def find_type(single_token: str, symbol_map: Symbols) -> set:
     return set()
 
 
-def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
+def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
     print(full_path)
     include_set = set()
 
@@ -42,16 +42,13 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
         for line in infp:
             lines.append(line)
 
-    # This is a 3-pass algorithm.
-    # In the first pass, we look for all tokens with '::' in them, as that designates
-    # some C++ construct that we need dependencies for.
-
     in_c_comment = False
     for line in lines:
-        # Skip C++ style comment
+        # Skip C++ style comments
         if line.lstrip().startswith('//'):
             continue
 
+        # Skip C-style comments
         if not in_c_comment:
             if line.lstrip().startswith('/*'):
                 if not '*/' in line.lstrip():
@@ -66,6 +63,8 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
 
         # TODO(clalancette): Also deal with 'using'
 
+        # Skip all lines that don't have '::' in them.  Because of namespaces,
+        # this means we might miss some dependencies, but it shouldn't matter too much.
         if not '::' in line:
             continue
 
@@ -82,14 +81,16 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
                     include_set = include_set.union(find_type(s, symbol_map))
                     break
             else:
-                print(f'==> Missing symbol for {s}')
+                if print_missing_symbols:
+                    print(f'==> Missing symbol for {s}')
 
     #print(include_set)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--types', nargs='+', required=False, default=[], help='A YAML file containing the types we should look for and produce while parsing')
+    parser.add_argument('-p', '--print-missing-symbols', required=False, action='store_true', default=False, help='Print symbols that could not be resolved')
+    parser.add_argument('-t', '--types', nargs='+', required=False, default=[], help='A YAML file containing the types that should be examined while parsing')
     parser.add_argument('package_path', help='Path to the package to find dependencies for')
 
     options = parser.parse_args()
@@ -110,7 +111,7 @@ def main():
             if extension not in ('.cpp', '.cxx', '.cc', '.h', '.hpp'):
                 continue
 
-            search_for_namespaces(os.path.join(dirpath, f), symbol_maps)
+            search_for_namespaces(os.path.join(dirpath, f), symbol_maps, options.print_missing_symbols)
 
 
 if __name__ == '__main__':
