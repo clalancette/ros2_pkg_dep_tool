@@ -78,7 +78,10 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols]) -> None:
                 continue
 
             for symbol_map in symbol_maps:
-                include_set = include_set.union(find_type(s, symbol_map))
+                found_type = find_type(s, symbol_map)
+                if found_type:
+                    include_set = include_set.union(find_type(s, symbol_map))
+                    break
 
     print(include_set)
 

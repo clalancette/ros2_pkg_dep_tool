@@ -91,7 +91,7 @@ symbols:
     include: "cmath"
     package: ""
   - symbol_name: "std::cout"
-    include: "<iostream>"
+    include: "iostream"
     package: ""
   - symbol_name: "std::ctime"
     include: "ctime"
