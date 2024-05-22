@@ -8,15 +8,16 @@ import yaml
 
 
 class Symbols:
-    __slots__ = ('symbol_map', 'empty_token', 'namespace_depth')
+    __slots__ = ('symbol_map', 'empty_token', 'namespace_depth', 'use_angle_brackets')
 
-    def __init__(self, symbol_map: dict, empty_token: str, namespace_depth: int):
+    def __init__(self, symbol_map: dict, empty_token: str, namespace_depth: int, use_angle_brackets: bool):
         self.symbol_map = symbol_map
         self.empty_token = empty_token
         self.namespace_depth = namespace_depth
+        self.use_angle_brackets = use_angle_brackets
 
 
-def find_type(single_token: str, symbol_map: Symbols) -> set:
+def find_type(single_token: str, symbol_map: Symbols) -> str:
     # In case this is just the empty namespace token, the actual type is
     # probably on the next line.  Since this entire utility is line-oriented,
     # there is no good way to get that.  Just ignore these; we may drop an
@@ -28,14 +29,14 @@ def find_type(single_token: str, symbol_map: Symbols) -> set:
             first = '::'.join(double_colon_split[:symbol_map.namespace_depth])
             if first in symbol_map.symbol_map:
                 if symbol_map.symbol_map[first]:
-                    return set([symbol_map.symbol_map[first]])
+                    return symbol_map.symbol_map[first]
 
-    return set()
+    return ''
 
 
 def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
     print(full_path)
-    include_set = set()
+    include_groups = {}
 
     lines = []
     with open(full_path, 'r') as infp:
@@ -78,13 +79,21 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
             for symbol_map in symbol_maps:
                 found_type = find_type(s, symbol_map)
                 if found_type:
-                    include_set = include_set.union(find_type(s, symbol_map))
+                    if symbol_map not in include_groups:
+                        include_groups[symbol_map] = set()
+                    include_groups[symbol_map].add(found_type)
                     break
             else:
                 if print_missing_symbols:
-                    print(f'==> Missing symbol for {s}')
+                    print(f'  ==> Missing symbol for {s}')
 
-    #print(include_set)
+    for symbol_map, include_set in include_groups.items():
+        for header in sorted(include_set):
+            if symbol_map.use_angle_brackets:
+                print(f'  #include <{header}>')
+            else:
+                print(f'  #include "{header}"')
+        print('')
 
 
 def main():
@@ -103,7 +112,7 @@ def main():
             if data['symbols'] is not None:
                 for symbol in data['symbols']:
                     symbol_map[symbol['symbol_name']] = symbol['include']
-            symbol_maps.append(Symbols(symbol_map, data['empty_token'], data['namespace_depth']))
+            symbol_maps.append(Symbols(symbol_map, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
 
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
         for f in filenames:

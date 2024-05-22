@@ -1,6 +1,6 @@
 %YAML 1.1
 ---
-use_angle_brackets: true
+use_angle_brackets: false
 empty_token: "visualization_msgs::msg::"
 namespace_depth: 3
 symbols:
