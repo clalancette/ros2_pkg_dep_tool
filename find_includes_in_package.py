@@ -114,6 +114,10 @@ def main():
                     symbol_map[symbol['symbol_name']] = symbol['include']
             symbol_maps.append(Symbols(symbol_map, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
 
+    if not 'package.xml' in os.listdir(options.package_path):
+        print(f'"{options.package_path}" does not contain a "package.xml" file')
+        return 1
+
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
         for f in filenames:
             extension = os.path.splitext(f)[1]
@@ -121,6 +125,8 @@ def main():
                 continue
 
             search_for_namespaces(os.path.join(dirpath, f), symbol_maps, options.print_missing_symbols)
+
+    return 0
 
 
 if __name__ == '__main__':
