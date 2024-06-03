@@ -38,54 +38,50 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
     print(full_path)
     include_groups = {}
 
-    lines = []
     with open(full_path, 'r') as infp:
+        in_c_comment = False
         for line in infp:
-            lines.append(line)
+            stripped_line = line.strip()
 
-    in_c_comment = False
-    for line in lines:
-        stripped_line = line.strip()
-
-        # Skip C++ style comments
-        if stripped_line.startswith('//'):
-            continue
-
-        # Skip C-style comments
-        if not in_c_comment:
-            if stripped_line.startswith('/*'):
-                if not '*/' in stripped_line:
-                    in_c_comment = True
-                continue
-        else:
-            if '*/' in line:
-                in_c_comment = False
-            continue
-
-        # TODO(clalancette): Also skip when inside of strings?
-
-        # Skip all lines that don't have '::' in them.  Because of namespaces,
-        # this means we might miss some dependencies, but it shouldn't matter too much.
-        if not '::' in stripped_line:
-            continue
-
-        commas = stripped_line.replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
-
-        split = commas.split(',')
-        for s in split:
-            if not '::' in s:
+            # Skip C++ style comments
+            if stripped_line.startswith('//'):
                 continue
 
-            for symbol_map in symbol_maps:
-                found_type = find_type(s, symbol_map)
-                if found_type:
-                    if symbol_map not in include_groups:
-                        include_groups[symbol_map] = set()
-                    include_groups[symbol_map].add(found_type)
-                    break
+            # Skip C-style comments
+            if not in_c_comment:
+                if stripped_line.startswith('/*'):
+                    if not '*/' in stripped_line:
+                        in_c_comment = True
+                    continue
             else:
-                if print_missing_symbols:
-                    print(f'  ==> Missing symbol for {s}')
+                if '*/' in line:
+                    in_c_comment = False
+                continue
+
+            # TODO(clalancette): Also skip when inside of strings?
+
+            # Skip all lines that don't have '::' in them.  Because of namespaces,
+            # this means we might miss some dependencies, but it shouldn't matter too much.
+            if not '::' in stripped_line:
+                continue
+
+            commas = stripped_line.replace('(', ',').replace(')', ',').replace('<', ',').replace('>', ',').replace(' ', ',').replace(';', ',').replace('{', ',').replace('}', ',').replace('&', ',').replace('...', ',').replace('!', ',')
+
+            split = commas.split(',')
+            for s in split:
+                if not '::' in s:
+                    continue
+
+                for symbol_map in symbol_maps:
+                    found_type = find_type(s, symbol_map)
+                    if found_type:
+                        if symbol_map not in include_groups:
+                            include_groups[symbol_map] = set()
+                        include_groups[symbol_map].add(found_type)
+                        break
+                else:
+                    if print_missing_symbols:
+                        print(f'  ==> Missing symbol for {s}')
 
     for symbol_map, include_set in include_groups.items():
         for header in sorted(include_set):
