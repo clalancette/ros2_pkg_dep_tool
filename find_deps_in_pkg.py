@@ -57,12 +57,12 @@ def find_type(single_token: str, symbol_map: Symbols) -> Optional[Symbol]:
     return None
 
 
-def search_for_namespaces(full_path: str, public: bool, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
+def search_for_namespaces(full_path: str, public: bool, symbol_maps: List[Symbols], print_missing_symbols: bool) -> set:
     print(full_path)
 
     include_groups = {}
     targets = set()
-    exports = set()
+    packages = set()
 
     with open(full_path, 'r') as infp:
         in_c_comment = False
@@ -107,7 +107,7 @@ def search_for_namespaces(full_path: str, public: bool, symbol_maps: List[Symbol
                         if found_type.target_name:
                             targets.add(found_type.target_name)
                         if found_type.package_name:
-                            exports.add(found_type.package_name)
+                            packages.add(found_type.package_name)
                         break
                 else:
                     if print_missing_symbols:
@@ -129,10 +129,7 @@ def search_for_namespaces(full_path: str, public: bool, symbol_maps: List[Symbol
     for target in sorted(targets):
         print(f'  {target}')
 
-    if public:
-        print('Exports')
-        for export in sorted(exports):
-            print(f'  {export}')
+    return packages
 
 
 def main():
@@ -158,6 +155,8 @@ def main():
         print(f'"{options.package_path}" does not contain a "package.xml" file')
         return 1
 
+    private_pkgs = set()
+    public_pkgs = set()
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
         for f in filenames:
             full_path = os.path.join(dirpath, f)
@@ -176,7 +175,20 @@ def main():
             else:
                 continue
 
-            search_for_namespaces(full_path, public, symbol_maps, options.print_missing_symbols)
+            pkgs = search_for_namespaces(full_path, public, symbol_maps, options.print_missing_symbols)
+            if public:
+                public_pkgs = public_pkgs.union(pkgs)
+            else:
+                private_pkgs = private_pkgs.union(pkgs)
+
+    print('Private packages:')
+    for pkg in sorted(private_pkgs):
+        if pkg in public_pkgs:
+            continue
+        print(f'  {pkg}')
+    print('Public packages:')
+    for pkg in sorted(public_pkgs):
+        print(f'  {pkg}')
 
     return 0
 

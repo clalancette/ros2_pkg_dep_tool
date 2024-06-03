@@ -4,6 +4,10 @@ use_angle_brackets: false
 empty_token: "nav_msgs::msg::"
 namespace_depth: 3
 symbols:
+  - symbol_name: "nav_msgs::msg::MapMetaData"
+    include: "nav_msgs/msg/map_meta_data.hpp"
+    package_name: "nav_msgs"
+    target_name: "${nav_msgs_TARGETS}"
   - symbol_name: "nav_msgs::msg::OccupancyGrid"
     include: "nav_msgs/msg/occupancy_grid.hpp"
     package_name: "nav_msgs"

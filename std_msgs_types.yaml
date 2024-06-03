@@ -8,3 +8,7 @@ symbols:
     include: "std_msgs/msg/empty.hpp"
     package_name: "std_msgs"
     target_name: "${std_msgs_TARGETS}"
+  - symbol_name: "std_msgs::msg::Header"
+    include: "std_msgs/msg/header.hpp"
+    package_name: "std_msgs"
+    target_name: "${std_msgs_TARGETS}"
