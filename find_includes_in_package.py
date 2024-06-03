@@ -2,22 +2,31 @@ import argparse
 import os
 import sys
 import time
-from typing import List
+from typing import List, Optional
 
 import yaml
 
 
-class Symbols:
-    __slots__ = ('symbol_include', 'empty_token', 'namespace_depth', 'use_angle_brackets')
+class Symbol:
+    __slots__ = ('include', 'package_name', 'target_name')
 
-    def __init__(self, symbol_include: dict, empty_token: str, namespace_depth: int, use_angle_brackets: bool):
-        self.symbol_include = symbol_include
+    def __init__(self, include: str, package_name: str, target_name: str):
+        self.include = include
+        self.package_name = package_name
+        self.target_name = target_name
+
+
+class Symbols:
+    __slots__ = ('symbols', 'empty_token', 'namespace_depth', 'use_angle_brackets')
+
+    def __init__(self, symbols: dict, empty_token: str, namespace_depth: int, use_angle_brackets: bool):
+        self.symbols = symbols
         self.empty_token = empty_token
         self.namespace_depth = namespace_depth
         self.use_angle_brackets = use_angle_brackets
 
 
-def find_type(single_token: str, symbol_map: Symbols) -> str:
+def find_type(single_token: str, symbol_map: Symbols) -> Optional[Symbol]:
     # In case this is just the empty namespace token, the actual type is
     # probably on the next line.  Since this entire utility is line-oriented,
     # there is no good way to get that.  Just ignore these; we may drop an
@@ -27,11 +36,11 @@ def find_type(single_token: str, symbol_map: Symbols) -> str:
             double_colon_split = single_token.split('::')
             # Only look up to the depth specified
             first = '::'.join(double_colon_split[:symbol_map.namespace_depth])
-            if first in symbol_map.symbol_include:
-                if symbol_map.symbol_include[first]:
-                    return symbol_map.symbol_include[first]
+            if first in symbol_map.symbols:
+                if symbol_map.symbols[first]:
+                    return symbol_map.symbols[first]
 
-    return ''
+    return None
 
 
 def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
@@ -74,10 +83,10 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
 
                 for symbol_map in symbol_maps:
                     found_type = find_type(s, symbol_map)
-                    if found_type:
+                    if found_type is not None:
                         if symbol_map not in include_groups:
                             include_groups[symbol_map] = set()
-                        include_groups[symbol_map].add(found_type)
+                        include_groups[symbol_map].add(found_type.include)
                         break
                 else:
                     if print_missing_symbols:
@@ -104,11 +113,12 @@ def main():
     for t in options.types:
         with open(t, 'r') as infp:
             data = yaml.safe_load(infp)
-            symbol_include = {}
+            symbols = {}
             if data['symbols'] is not None:
                 for symbol in data['symbols']:
-                    symbol_include[symbol['symbol_name']] = symbol['include']
-            symbol_maps.append(Symbols(symbol_include, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
+                    symbols[symbol['symbol_name']] = Symbol(symbol['include'], symbol['package_name'], symbol['target_name'])
+
+            symbol_maps.append(Symbols(symbols, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
 
     if not 'package.xml' in os.listdir(options.package_path):
         print(f'"{options.package_path}" does not contain a "package.xml" file')
