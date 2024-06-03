@@ -43,8 +43,9 @@ def find_type(single_token: str, symbol_map: Symbols) -> Optional[Symbol]:
     return None
 
 
-def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
+def search_for_namespaces(full_path: str, public: bool, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
     print(full_path)
+
     include_groups = {}
     targets = set()
     exports = set()
@@ -107,13 +108,17 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
                 print(f'  #include "{header}"')
         print('')
 
-    print('Targets')
+    if public:
+        print('Public Targets')
+    else:
+        print('Private Targets')
     for target in sorted(targets):
-        print(target)
+        print(f'  {target}')
 
-    print('Exports')
-    for export in sorted(exports):
-        print(export)
+    if public:
+        print('Exports')
+        for export in sorted(exports):
+            print(f'  {export}')
 
 
 def main():
@@ -141,11 +146,23 @@ def main():
 
     for (dirpath, dirnames, filenames) in os.walk(options.package_path):
         for f in filenames:
-            extension = os.path.splitext(f)[1]
-            if extension not in ('.cpp', '.cxx', '.cc', '.h', '.hpp'):
+            full_path = os.path.join(dirpath, f)
+            public = False
+            extension = os.path.splitext(full_path)[1]
+            if extension in ('.h', '.hpp'):
+                # possibly public
+                no_initial = full_path.removeprefix(options.package_path)
+                if no_initial.startswith('include'):
+                    public = True
+                else:
+                    public = False
+            elif extension in ('.cpp', '.cxx', '.cc'):
+                # private
+                public = False
+            else:
                 continue
 
-            search_for_namespaces(os.path.join(dirpath, f), symbol_maps, options.print_missing_symbols)
+            search_for_namespaces(full_path, public, symbol_maps, options.print_missing_symbols)
 
     return 0
 
