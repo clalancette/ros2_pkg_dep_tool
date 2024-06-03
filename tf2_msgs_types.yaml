@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+use_angle_brackets: false
+empty_token: "tf2_msgs::msg::"
+namespace_depth: 3
+symbols:
+  - symbol_name: "tf2_msgs::msg::TFMessage"
+    include: "tf2_msgs/msg/tf_message.hpp"
+    package_name: "tf2_msgs"
+    target_name: "${tf2_msgs_TARGETS}"
