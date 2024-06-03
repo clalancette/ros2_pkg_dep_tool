@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+use_angle_brackets: false
+empty_token: "std_srvs::srv::"
+namespace_depth: 3
+symbols:
+  - symbol_name: "std_srvs::srv::Empty"
+    include: "std_srvs/srv/empty.hpp"
+    package_name: "std_srvs"
+    target_name: "${std_srvs_TARGETS}"

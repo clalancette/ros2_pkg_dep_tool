@@ -4,6 +4,10 @@ use_angle_brackets: false
 empty_token: "rcl_interfaces::msg::"
 namespace_depth: 3
 symbols:
+  - symbol_name: "rcl_interfaces::msg::ParameterDescriptor"
+    include: "rcl_interfaces/msg/parameter_descriptor.hpp"
+    package_name: "rcl_interfaces"
+    target_name: "${rcl_interfaces_TARGETS}"
   - symbol_name: "rcl_interfaces::msg::SetParametersResult"
     include: "rcl_interfaces/msg/set_parameters_result.hpp"
     package_name: "rcl_interfaces"

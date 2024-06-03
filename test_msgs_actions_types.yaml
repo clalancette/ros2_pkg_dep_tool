@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+use_angle_brackets: false
+empty_token: "test_msgs::action::"
+namespace_depth: 3
+symbols:
+  - symbol_name: "test_msgs::action::Fibonacci"
+    include: "test_msgs/msg/fibonacci.hpp"
+    package_name: "test_msgs"
+    target_name: "${test_msgs_TARGETS}"
