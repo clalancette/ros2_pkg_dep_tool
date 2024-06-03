@@ -46,6 +46,8 @@ def find_type(single_token: str, symbol_map: Symbols) -> Optional[Symbol]:
 def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_missing_symbols: bool) -> None:
     print(full_path)
     include_groups = {}
+    targets = set()
+    exports = set()
 
     with open(full_path, 'r') as infp:
         in_c_comment = False
@@ -87,11 +89,16 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
                         if symbol_map not in include_groups:
                             include_groups[symbol_map] = set()
                         include_groups[symbol_map].add(found_type.include)
+                        if found_type.target_name:
+                            targets.add(found_type.target_name)
+                        if found_type.package_name:
+                            exports.add(found_type.package_name)
                         break
                 else:
                     if print_missing_symbols:
                         print(f'  ==> Missing symbol for {s}')
 
+    print('Includes')
     for symbol_map, include_set in include_groups.items():
         for header in sorted(include_set):
             if symbol_map.use_angle_brackets:
@@ -99,6 +106,14 @@ def search_for_namespaces(full_path: str, symbol_maps: List[Symbols], print_miss
             else:
                 print(f'  #include "{header}"')
         print('')
+
+    print('Targets')
+    for target in sorted(targets):
+        print(target)
+
+    print('Exports')
+    for export in sorted(exports):
+        print(export)
 
 
 def main():
