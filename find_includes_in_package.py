@@ -8,10 +8,10 @@ import yaml
 
 
 class Symbols:
-    __slots__ = ('symbol_map', 'empty_token', 'namespace_depth', 'use_angle_brackets')
+    __slots__ = ('symbol_include', 'empty_token', 'namespace_depth', 'use_angle_brackets')
 
-    def __init__(self, symbol_map: dict, empty_token: str, namespace_depth: int, use_angle_brackets: bool):
-        self.symbol_map = symbol_map
+    def __init__(self, symbol_include: dict, empty_token: str, namespace_depth: int, use_angle_brackets: bool):
+        self.symbol_include = symbol_include
         self.empty_token = empty_token
         self.namespace_depth = namespace_depth
         self.use_angle_brackets = use_angle_brackets
@@ -27,9 +27,9 @@ def find_type(single_token: str, symbol_map: Symbols) -> str:
             double_colon_split = single_token.split('::')
             # Only look up to the depth specified
             first = '::'.join(double_colon_split[:symbol_map.namespace_depth])
-            if first in symbol_map.symbol_map:
-                if symbol_map.symbol_map[first]:
-                    return symbol_map.symbol_map[first]
+            if first in symbol_map.symbol_include:
+                if symbol_map.symbol_include[first]:
+                    return symbol_map.symbol_include[first]
 
     return ''
 
@@ -104,11 +104,11 @@ def main():
     for t in options.types:
         with open(t, 'r') as infp:
             data = yaml.safe_load(infp)
-            symbol_map = {}
+            symbol_include = {}
             if data['symbols'] is not None:
                 for symbol in data['symbols']:
-                    symbol_map[symbol['symbol_name']] = symbol['include']
-            symbol_maps.append(Symbols(symbol_map, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
+                    symbol_include[symbol['symbol_name']] = symbol['include']
+            symbol_maps.append(Symbols(symbol_include, data['empty_token'], data['namespace_depth'], data['use_angle_brackets']))
 
     if not 'package.xml' in os.listdir(options.package_path):
         print(f'"{options.package_path}" does not contain a "package.xml" file')
